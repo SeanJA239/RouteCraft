@@ -55,7 +55,6 @@ Mihomo 最终配置 → Clash Verge Rev「代理」界面
 - **[SukkaW/Surge](https://github.com/SukkaW/Surge)**：提供本项目引用的规则数据。其规则、代码和相关文件仍受 SukkaW 项目各自的许可约束；本仓库的许可不改变第三方文件许可。
 - **[Mihomo](https://github.com/MetaCubeX/mihomo)**、**[Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev)**：运行内核与客户端。
 
-如为自有原创代码选择 MIT License，可在仓库添加 `LICENSE`；该许可仅覆盖你有权授权的内容。发布前仍应检查是否包含第三方受限代码。
 
 ## 状态
 
