@@ -48,7 +48,7 @@ RouteCraft 会在同一个扩展脚本中配置 DNS 与已确认的异常路由�
 
 - 普通公网域名使用腾讯和阿里的公共 DoH，避免当前网络的 DNS 影响公网解析。
 - `xjtlu.edu.cn` 与 SukkaW 局域网规则集仍使用系统 DNS，以保留校园内部服务的解析能力。
-- `mail.xjtlu.edu.cn`、`cdn-go.cn`、`cloudcache.tencent-cloud.com` 和 `main.qcloudimg.com` 使用 `🚀 Proxy`，绕过已确认存在连接超时的校园出口路径。
+- `ams.xjtlu.edu.cn`、`mail.xjtlu.edu.cn`、`cdn-go.cn`、`cloudcache.tencent-cloud.com` 和 `main.qcloudimg.com` 使用 `🚀 Proxy`，绕过已确认存在连接超时的校园出口路径。
 - 规则只匹配上述故障主机，不会把整个 XJTLU 或腾讯云域名后缀改走代理。
 
 公共 DNS 服务能够看到它所处理的域名查询。如果所在网络有额外的内部域名，请先确认它们包含在 XJTLU 或局域网规则范围内，再启用本脚本。

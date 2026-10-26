@@ -40,6 +40,7 @@ function baseConfig() {
 test('routes known campus-network failures through the main proxy first', () => {
   const result = runRouteCraft(baseConfig());
   const recoveryRules = [
+    'DOMAIN,ams.xjtlu.edu.cn,🚀 Proxy',
     'DOMAIN,mail.xjtlu.edu.cn,🚀 Proxy',
     'DOMAIN,cdn-go.cn,🚀 Proxy',
     'DOMAIN,cloudcache.tencent-cloud.com,🚀 Proxy',

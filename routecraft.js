@@ -563,6 +563,7 @@ const SUKKA_RULES = [
 // Set to false when the profile depends on non-XJTLU private or split-horizon DNS.
 const CAMPUS_NETWORK_PROFILE_ENABLED = true;
 const CAMPUS_RECOVERY_RULES = [
+  'DOMAIN,ams.xjtlu.edu.cn,🚀 Proxy',
   'DOMAIN,mail.xjtlu.edu.cn,🚀 Proxy',
   'DOMAIN,cdn-go.cn,🚀 Proxy',
   'DOMAIN,cloudcache.tencent-cloud.com,🚀 Proxy',
