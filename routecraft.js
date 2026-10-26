@@ -568,6 +568,10 @@ const CAMPUS_RECOVERY_RULES = [
   'DOMAIN,cdn-go.cn,🚀 Proxy',
   'DOMAIN,cloudcache.tencent-cloud.com,🚀 Proxy',
   'DOMAIN,main.qcloudimg.com,🚀 Proxy',
+  'DOMAIN,mmbiz.qpic.cn,🚀 Proxy',
+  'DOMAIN,res.wx.qq.com,🚀 Proxy',
+  'DOMAIN,wximg.wxs.qq.com,🚀 Proxy',
+  'DOMAIN,mmbiz.qlogo.cn,🚀 Proxy',
 ];
 const CAMPUS_PUBLIC_DNS = ['https://doh.pub/dns-query', 'https://dns.alidns.com/dns-query'];
 const BUSINESS_GROUPS = {

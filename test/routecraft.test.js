@@ -45,6 +45,10 @@ test('routes known campus-network failures through the main proxy first', () => 
     'DOMAIN,cdn-go.cn,🚀 Proxy',
     'DOMAIN,cloudcache.tencent-cloud.com,🚀 Proxy',
     'DOMAIN,main.qcloudimg.com,🚀 Proxy',
+    'DOMAIN,mmbiz.qpic.cn,🚀 Proxy',
+    'DOMAIN,res.wx.qq.com,🚀 Proxy',
+    'DOMAIN,wximg.wxs.qq.com,🚀 Proxy',
+    'DOMAIN,mmbiz.qlogo.cn,🚀 Proxy',
   ];
 
   assert.deepEqual(result.rules.slice(0, recoveryRules.length), recoveryRules);
