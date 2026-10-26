@@ -2,7 +2,7 @@
 
 **Smarter routing for Ikuuu on Mihomo, powered by [SukkaW rulesets](https://github.com/SukkaW/Surge).**
 
-RouteCraft 是面向 **Ikuuu 机场订阅**设计的非官方 [Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev) 扩展脚本。它会基于机场订阅中的节点，动态构建地区和业务策略组，并使用 SukkaW 维护的在线规则进行分流。
+RouteCraft 是面向 **XJTLU 校园网上的 Ikuuu 机场订阅**设计的非官方 [Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev) 扩展脚本。它会基于机场订阅中的节点，动态构建地区和业务策略组，并使用 SukkaW 维护的在线规则进行分流。
 
 > 本项目与 Ikuuu、SukkaW 无官方关联。节点名称匹配针对当前 Ikuuu 风格设计，其他机场不保证兼容。
 
@@ -12,6 +12,8 @@ RouteCraft 是面向 **Ikuuu 机场订阅**设计的非官方 [Clash Verge Rev](
 - 提供 `🚀 Proxy`、`🤖 AI`、`📱 Telegram`、`🎬 Media`、`⬇️ Download` 等分层策略组，并保留专项业务分流。
 - 识别低倍率、下载专用和免费节点，方便将大流量任务与常规代理分开。
 - 通过 Mihomo `rule-providers` 引用 SukkaW 在线规则，无需将上千条规则硬编码进订阅。
+- 使用公共 DoH 解析公网域名，同时保留 XJTLU 与局域网域名的系统 DNS 解析。
+- 修复部分校园网络无法直连的 XJTLU 邮件与腾讯云 CDN 主机。
 - 在原机场订阅的基础上加工配置；不在本脚本中写入机场订阅地址、密码或 UUID。
 
 ## 安装与使用
@@ -40,9 +42,23 @@ routecraft.js（订阅扩展脚本）
 Mihomo 最终配置 → Clash Verge Rev「代理」界面
 ```
 
+## 校园网络兼容
+
+RouteCraft 会在同一个扩展脚本中配置 DNS 与已确认的异常路由，不需要另外安装扩展覆写配置：
+
+- 普通公网域名使用腾讯和阿里的公共 DoH，避免当前网络的 DNS 影响公网解析。
+- `xjtlu.edu.cn` 与 SukkaW 局域网规则集仍使用系统 DNS，以保留校园内部服务的解析能力。
+- `mail.xjtlu.edu.cn`、`cdn-go.cn`、`cloudcache.tencent-cloud.com` 和 `main.qcloudimg.com` 使用 `🚀 Proxy`，绕过已确认存在连接超时的校园出口路径。
+- 规则只匹配上述故障主机，不会把整个 XJTLU 或腾讯云域名后缀改走代理。
+
+公共 DNS 服务能够看到它所处理的域名查询。如果所在网络有额外的内部域名，请先确认它们包含在 XJTLU 或局域网规则范围内，再启用本脚本。
+
+如果在其他校园、企业内网或需要额外 split-horizon DNS 的网络使用，请将 `routecraft.js` 顶部的 `CAMPUS_NETWORK_PROFILE_ENABLED` 改为 `false`。这会关闭本节的 DNS 和故障主机规则，保留订阅原有的 DNS 配置。
+
 ## 自动更新与注意事项
 
-- **机场节点更新**：仍由 Clash Verge Rev 原来的订阅更新功能负责。脚本在配置重新生成时，会使用更新后的节点重新构建策略组；**脚本本身不会替你定时拉取机场订阅**。
+- **机场节点更新**：仍由 Clash Verge Rev 原来的订阅更新功能负责。脚本在配置重新生成时，会使用更新后的节点重新构建策略组和 DNS；**脚本本身不会替你定时拉取机场订阅**。
+- **脚本版本更新**：机场订阅更新会重新执行已经安装的脚本，但不会自动下载 GitHub 上的新版本。RouteCraft 发布更新后，需要重新复制一次 `routecraft.js`。
 - **规则数据更新**：由脚本中定义的 SukkaW `rule-providers` 按设定间隔下载；首次使用需要能访问相应规则地址。
 - **兼容性**：主要针对 `proxies` 节点列表设计，同时包含 `proxy-providers` 的处理逻辑。节点命名不符合识别模式时，可能不会被分入预期国家；可从 `🧰 Manual Nodes` 或 `🚀 Proxy` 检查。
 - **现有配置**：脚本会重建 `proxy-groups`、`rules`、`rule-providers`，因此原机场自带的这些自定义项会被替换；其他字段尽量沿用原订阅。

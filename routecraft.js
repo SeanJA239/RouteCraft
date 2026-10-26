@@ -560,6 +560,15 @@ const SUKKA_RULES = [
   'RULE-SET,china_ip,🇨🇳 Domestic',
   'MATCH,🐟 漏网之鱼',
 ];
+// Set to false when the profile depends on non-XJTLU private or split-horizon DNS.
+const CAMPUS_NETWORK_PROFILE_ENABLED = true;
+const CAMPUS_RECOVERY_RULES = [
+  'DOMAIN,mail.xjtlu.edu.cn,🚀 Proxy',
+  'DOMAIN,cdn-go.cn,🚀 Proxy',
+  'DOMAIN,cloudcache.tencent-cloud.com,🚀 Proxy',
+  'DOMAIN,main.qcloudimg.com,🚀 Proxy',
+];
+const CAMPUS_PUBLIC_DNS = ['https://doh.pub/dns-query', 'https://dns.alidns.com/dns-query'];
 const BUSINESS_GROUPS = {
   '🇨🇳 Domestic': ['DIRECT', '🚀 Proxy'],
   '🚄 CDN': ['💸 Low Cost', '🚀 Proxy', 'DIRECT', '🇭🇰 HK', '🇯🇵 JP', '🇸🇬 SG', '🇺🇸 US', '🇹🇼 TW'],
@@ -590,6 +599,33 @@ const BUSINESS_GROUPS = {
   '🐟 漏网之鱼': ['🚀 Proxy', 'DIRECT'],
 };
 
+function configureCampusDns(config) {
+  const existingDns =
+    config.dns && typeof config.dns === 'object' && !Array.isArray(config.dns) ? config.dns : {};
+  const existingPolicy =
+    existingDns['nameserver-policy'] &&
+    typeof existingDns['nameserver-policy'] === 'object' &&
+    !Array.isArray(existingDns['nameserver-policy'])
+      ? existingDns['nameserver-policy']
+      : {};
+
+  config.dns = {
+    ...existingDns,
+    enable: true,
+    'default-nameserver': ['223.5.5.5', '119.29.29.29'],
+    nameserver: [...CAMPUS_PUBLIC_DNS],
+    'proxy-server-nameserver': [...CAMPUS_PUBLIC_DNS],
+    'direct-nameserver': [...CAMPUS_PUBLIC_DNS],
+    'direct-nameserver-follow-policy': true,
+    'respect-rules': false,
+    'nameserver-policy': {
+      ...existingPolicy,
+      'rule-set:lan_non_ip': 'system',
+      '+.xjtlu.edu.cn': 'system',
+    },
+  };
+}
+
 // biome-ignore lint/correctness/noUnusedVariables: Clash Verge invokes this global entrypoint.
 function main(config) {
   if (!config || typeof config !== 'object') return config;
@@ -601,6 +637,7 @@ function main(config) {
     // Never overwrite a profile with no available nodes.
     return config;
   }
+  if (CAMPUS_NETWORK_PROFILE_ENABLED) configureCampusDns(config);
   const nodes = [...new Set(nodeNames)];
   const nodeSet = new Set(nodes);
   const providerMode = providerNames.length > 0;
@@ -727,13 +764,16 @@ function main(config) {
   const valid = new Set(
     groups.map((g) => g.name).concat(nodes, ['DIRECT', 'REJECT', 'REJECT-DROP', 'PASS']),
   );
-  const rules = SUKKA_RULES.map((line) => {
-    const parts = line.split(',');
-    const policyIndex = parts[0] === 'MATCH' ? 1 : 2;
-    if (parts.length > policyIndex && !valid.has(parts[policyIndex]))
-      parts[policyIndex] = '🚀 Proxy';
-    return parts.join(',');
-  });
+  const rules = [
+    ...(CAMPUS_NETWORK_PROFILE_ENABLED ? CAMPUS_RECOVERY_RULES : []),
+    ...SUKKA_RULES.map((line) => {
+      const parts = line.split(',');
+      const policyIndex = parts[0] === 'MATCH' ? 1 : 2;
+      if (parts.length > policyIndex && !valid.has(parts[policyIndex]))
+        parts[policyIndex] = '🚀 Proxy';
+      return parts.join(',');
+    }),
+  ];
   config['proxy-groups'] = groups;
   config['rule-providers'] = JSON.parse(JSON.stringify(SUKKA_PROVIDERS));
   config.rules = rules;
