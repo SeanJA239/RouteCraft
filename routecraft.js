@@ -564,6 +564,7 @@ const SUKKA_RULES = [
 const CAMPUS_NETWORK_PROFILE_ENABLED = true;
 const CAMPUS_RECOVERY_RULES = [
   'DOMAIN,ams.xjtlu.edu.cn,🚀 Proxy',
+  'DOMAIN,print.xjtlu.edu.cn,🚀 Proxy',
   'DOMAIN,mail.xjtlu.edu.cn,🚀 Proxy',
   'DOMAIN,cdn-go.cn,🚀 Proxy',
   'DOMAIN,cloudcache.tencent-cloud.com,🚀 Proxy',
