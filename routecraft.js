@@ -563,9 +563,7 @@ const SUKKA_RULES = [
 // Set to false when the profile depends on non-XJTLU private or split-horizon DNS.
 const CAMPUS_NETWORK_PROFILE_ENABLED = true;
 const CAMPUS_RECOVERY_RULES = [
-  'DOMAIN,ams.xjtlu.edu.cn,🚀 Proxy',
-  'DOMAIN,print.xjtlu.edu.cn,🚀 Proxy',
-  'DOMAIN,mail.xjtlu.edu.cn,🚀 Proxy',
+  'DOMAIN-SUFFIX,xjtlu.edu.cn,🏫 XJTLU',
   'DOMAIN,cdn-go.cn,🚀 Proxy',
   'DOMAIN,cloudcache.tencent-cloud.com,🚀 Proxy',
   'DOMAIN,main.qcloudimg.com,🚀 Proxy',
@@ -751,6 +749,9 @@ function main(config) {
     '🧰 Manual Nodes',
   ].filter((n) => groupSet.has(n));
   add({ name: '🚀 Proxy', type: 'select', proxies: mainOptions });
+  if (CAMPUS_NETWORK_PROFILE_ENABLED) {
+    add({ name: '🏫 XJTLU', type: 'select', proxies: ['🚀 Proxy', 'DIRECT'] });
+  }
   for (const [name, options] of Object.entries(BUSINESS_GROUPS)) {
     const unique = [
       ...new Set(

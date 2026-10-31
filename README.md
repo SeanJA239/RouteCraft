@@ -13,7 +13,7 @@ RouteCraft 是面向 **XJTLU 校园网上的 Ikuuu 机场订阅**设计的非官
 - 识别低倍率、下载专用和免费节点，方便将大流量任务与常规代理分开。
 - 通过 Mihomo `rule-providers` 引用 SukkaW 在线规则，无需将上千条规则硬编码进订阅。
 - 使用公共 DoH 解析公网域名，同时保留 XJTLU 与局域网域名的系统 DNS 解析。
-- 修复部分校园网络无法直连的 XJTLU 邮件与腾讯云 CDN 主机。
+- 使用独立的 `🏫 XJTLU` 策略组处理 XJTLU 域名，并修复部分校园网络无法直连的腾讯云 CDN 主机。
 - 在原机场订阅的基础上加工配置；不在本脚本中写入机场订阅地址、密码或 UUID。
 
 ## 安装与使用
@@ -48,9 +48,10 @@ RouteCraft 会在同一个扩展脚本中配置 DNS 与已确认的异常路由�
 
 - 普通公网域名使用腾讯和阿里的公共 DoH，避免当前网络的 DNS 影响公网解析。
 - `xjtlu.edu.cn` 与 SukkaW 局域网规则集仍使用系统 DNS，以保留校园内部服务的解析能力。
-- `ams.xjtlu.edu.cn`、`print.xjtlu.edu.cn`、`mail.xjtlu.edu.cn`、`cdn-go.cn`、`cloudcache.tencent-cloud.com` 和 `main.qcloudimg.com` 使用 `🚀 Proxy`，绕过已确认存在连接超时的校园出口路径。
+- 所有 `xjtlu.edu.cn` 域名使用 `🏫 XJTLU` 策略组。该组默认选择 `🚀 Proxy`，绕过已确认存在连接超时的校园出口路径；访问只能从校园网进入的内部服务时，可以手动切换为 `DIRECT`。
+- `cdn-go.cn`、`cloudcache.tencent-cloud.com` 和 `main.qcloudimg.com` 使用 `🚀 Proxy`，绕过已确认存在连接超时的校园出口路径。
 - 微信资源主机 `mmbiz.qpic.cn`、`res.wx.qq.com`、`wximg.wxs.qq.com` 和 `mmbiz.qlogo.cn` 使用 `🚀 Proxy`，避免连接到校园网当前不可达的腾讯边缘节点。
-- 规则只匹配上述故障主机，不会把整个 XJTLU 或腾讯云域名后缀改走代理。
+- 腾讯云相关规则只匹配上述故障主机，不会把整个腾讯云域名后缀改走代理。
 
 公共 DNS 服务能够看到它所处理的域名查询。如果所在网络有额外的内部域名，请先确认它们包含在 XJTLU 或局域网规则范围内，再启用本脚本。
 

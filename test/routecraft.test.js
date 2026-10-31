@@ -37,12 +37,10 @@ function baseConfig() {
   };
 }
 
-test('routes known campus-network failures through the main proxy first', () => {
+test('routes every XJTLU domain through a dedicated campus group first', () => {
   const result = runRouteCraft(baseConfig());
   const recoveryRules = [
-    'DOMAIN,ams.xjtlu.edu.cn,🚀 Proxy',
-    'DOMAIN,print.xjtlu.edu.cn,🚀 Proxy',
-    'DOMAIN,mail.xjtlu.edu.cn,🚀 Proxy',
+    'DOMAIN-SUFFIX,xjtlu.edu.cn,🏫 XJTLU',
     'DOMAIN,cdn-go.cn,🚀 Proxy',
     'DOMAIN,cloudcache.tencent-cloud.com,🚀 Proxy',
     'DOMAIN,main.qcloudimg.com,🚀 Proxy',
@@ -62,7 +60,17 @@ test('routes known campus-network failures through the main proxy first', () => 
     assert.ok(ruleIndex < cdnRuleIndex, `${rule} must precede the CDN ruleset`);
   }
 
-  assert.equal(result.rules.includes('DOMAIN-SUFFIX,xjtlu.edu.cn,🚀 Proxy'), false);
+  assert.deepEqual(
+    result['proxy-groups'].find((group) => group.name === '🏫 XJTLU'),
+    {
+      name: '🏫 XJTLU',
+      type: 'select',
+      proxies: ['🚀 Proxy', 'DIRECT'],
+    },
+  );
+  assert.equal(result.rules.includes('DOMAIN,ams.xjtlu.edu.cn,🚀 Proxy'), false);
+  assert.equal(result.rules.includes('DOMAIN,print.xjtlu.edu.cn,🚀 Proxy'), false);
+  assert.equal(result.rules.includes('DOMAIN,mail.xjtlu.edu.cn,🚀 Proxy'), false);
 });
 
 test('uses public DoH while preserving system DNS for campus and LAN domains', () => {
@@ -115,6 +123,10 @@ test('can disable the campus profile for other private DNS environments', () => 
   const result = runRouteCraft(config, { campusNetworkProfile: false });
 
   assert.deepEqual(result.dns, config.dns);
-  assert.equal(result.rules.includes('DOMAIN,mail.xjtlu.edu.cn,🚀 Proxy'), false);
+  assert.equal(result.rules.includes('DOMAIN-SUFFIX,xjtlu.edu.cn,🏫 XJTLU'), false);
+  assert.equal(
+    result['proxy-groups'].some((group) => group.name === '🏫 XJTLU'),
+    false,
+  );
   assert.equal(result.rules.includes('DOMAIN,main.qcloudimg.com,🚀 Proxy'), false);
 });
