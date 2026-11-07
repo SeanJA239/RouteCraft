@@ -563,10 +563,13 @@ const SUKKA_RULES = [
 // Set to false when the profile depends on non-XJTLU private or split-horizon DNS.
 const CAMPUS_NETWORK_PROFILE_ENABLED = true;
 const CAMPUS_RECOVERY_RULES = [
+  'DOMAIN,captive.apple.com,DIRECT',
+  'DOMAIN,netauth.xjtlu.edu.cn,DIRECT',
   'DOMAIN-SUFFIX,xjtlu.edu.cn,🏫 XJTLU',
-  'DOMAIN,cdn-go.cn,🚀 Proxy',
+  'DOMAIN,sns-webpic-qc.xhscdn.com,🚀 Proxy',
   'DOMAIN,cloudcache.tencent-cloud.com,🚀 Proxy',
-  'DOMAIN,main.qcloudimg.com,🚀 Proxy',
+  'DOMAIN,cdn-go.cn,🇭🇰 HK',
+  'DOMAIN,main.qcloudimg.com,🇭🇰 HK',
   'DOMAIN,mmbiz.qpic.cn,🚀 Proxy',
   'DOMAIN,res.wx.qq.com,🚀 Proxy',
   'DOMAIN,wximg.wxs.qq.com,🚀 Proxy',
@@ -602,6 +605,29 @@ const BUSINESS_GROUPS = {
   '🛑 拦截广告': ['REJECT', 'DIRECT', '🚀 Proxy'],
   '🐟 漏网之鱼': ['🚀 Proxy', 'DIRECT'],
 };
+const SCENARIO_GROUP_ORDER = [
+  '🚀 Proxy',
+  '🏫 XJTLU',
+  '🤖 AI',
+  '📱 Telegram',
+  '🎬 Media',
+  '🚄 CDN',
+  '⬇️ Download',
+  '🍎 Apple',
+  '🍎 Apple CDN',
+  '🧑‍💻 Microsoft',
+  '🧑‍💻 Microsoft CDN',
+  '☁️ OneDrive',
+  '🌩️ Cloudflare',
+  '🇨🇳 Domestic',
+  '🎓 学术网站',
+  '🛑 拦截广告',
+  '🐟 漏网之鱼',
+  '🌏 爱奇艺&哔哩哔哩',
+  '📺 动画疯',
+  '🎮 Steam 登录/下载',
+  '🎮 Steam 商店/社区',
+];
 
 function configureCampusDns(config) {
   const existingDns =
@@ -781,7 +807,18 @@ function main(config) {
       return parts.join(',');
     }),
   ];
-  config['proxy-groups'] = groups;
+  const scenarioNames = [
+    ...SCENARIO_GROUP_ORDER,
+    ...Object.keys(BUSINESS_GROUPS).filter((name) => !SCENARIO_GROUP_ORDER.includes(name)),
+  ];
+  const scenarioNameSet = new Set(scenarioNames);
+  const generatedGroups = new Map(groups.map((group) => [group.name, group]));
+  const orderedScenarioGroups = scenarioNames
+    .map((name) => generatedGroups.get(name))
+    .filter(Boolean);
+  const regionAndHelperGroups = groups.filter((group) => !scenarioNameSet.has(group.name));
+
+  config['proxy-groups'] = [...orderedScenarioGroups, ...regionAndHelperGroups];
   config['rule-providers'] = JSON.parse(JSON.stringify(SUKKA_PROVIDERS));
   config.rules = rules;
   config.mode = 'rule';
