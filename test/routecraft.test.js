@@ -40,10 +40,13 @@ function baseConfig() {
 test('routes every XJTLU domain through a dedicated campus group first', () => {
   const result = runRouteCraft(baseConfig());
   const recoveryRules = [
+    'DOMAIN,captive.apple.com,DIRECT',
+    'DOMAIN,netauth.xjtlu.edu.cn,DIRECT',
     'DOMAIN-SUFFIX,xjtlu.edu.cn,🏫 XJTLU',
-    'DOMAIN,cdn-go.cn,🚀 Proxy',
+    'DOMAIN,sns-webpic-qc.xhscdn.com,🚀 Proxy',
     'DOMAIN,cloudcache.tencent-cloud.com,🚀 Proxy',
-    'DOMAIN,main.qcloudimg.com,🚀 Proxy',
+    'DOMAIN,cdn-go.cn,🇭🇰 HK',
+    'DOMAIN,main.qcloudimg.com,🇭🇰 HK',
     'DOMAIN,mmbiz.qpic.cn,🚀 Proxy',
     'DOMAIN,res.wx.qq.com,🚀 Proxy',
     'DOMAIN,wximg.wxs.qq.com,🚀 Proxy',
@@ -71,6 +74,31 @@ test('routes every XJTLU domain through a dedicated campus group first', () => {
   assert.equal(result.rules.includes('DOMAIN,ams.xjtlu.edu.cn,🚀 Proxy'), false);
   assert.equal(result.rules.includes('DOMAIN,print.xjtlu.edu.cn,🚀 Proxy'), false);
   assert.equal(result.rules.includes('DOMAIN,mail.xjtlu.edu.cn,🚀 Proxy'), false);
+});
+
+test('orders managed scenario groups first and removes original Ikuuu groups', () => {
+  const config = baseConfig();
+  config['proxy-groups'] = [
+    { name: '🚀 Proxy', type: 'select', proxies: ['DIRECT'] },
+    { name: '☁️ OneDrive', type: 'select', proxies: ['DIRECT'] },
+    { name: '🔰 选择节点', type: 'select', proxies: ['🇭🇰 Hong Kong', 'DIRECT'] },
+    { name: '🎓学术网站', type: 'select', proxies: ['DIRECT', '🔰 选择节点'] },
+  ];
+
+  const result = runRouteCraft(config);
+  const groups = result['proxy-groups'];
+  const names = groups.map((group) => group.name);
+  const firstRegionIndex = names.indexOf('🇭🇰 HK');
+  const manualIndex = names.indexOf('🧰 Manual Nodes');
+
+  assert.equal(names[0], '🚀 Proxy');
+  assert.ok(names.indexOf('🤖 AI') < firstRegionIndex);
+  assert.ok(names.indexOf('🐟 漏网之鱼') < firstRegionIndex);
+  assert.ok(firstRegionIndex < manualIndex);
+  assert.equal(names.filter((name) => name === '🚀 Proxy').length, 1);
+  assert.equal(names.filter((name) => name === '☁️ OneDrive').length, 1);
+  assert.equal(names.includes('🔰 选择节点'), false);
+  assert.equal(names.includes('🎓学术网站'), false);
 });
 
 test('uses public DoH while preserving system DNS for campus and LAN domains', () => {
