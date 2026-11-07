@@ -2,7 +2,7 @@
 
 **Smarter routing for Ikuuu on Mihomo, powered by [SukkaW rulesets](https://github.com/SukkaW/Surge).**
 
-RouteCraft 是面向 **Ikuuu 机场订阅**设计的非官方 [Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev) 扩展脚本。它会基于机场订阅中的节点，动态构建地区和业务策略组，并使用 SukkaW 维护的在线规则进行分流。
+RouteCraft 是面向 **XJTLU 校园网上的 Ikuuu 机场订阅**设计的非官方 [Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev) 扩展脚本。它会基于机场订阅中的节点，动态构建地区和业务策略组，并使用 SukkaW 维护的在线规则进行分流。
 
 > 本项目与 Ikuuu、SukkaW 无官方关联。节点名称匹配针对当前 Ikuuu 风格设计，其他机场不保证兼容。
 
@@ -10,8 +10,11 @@ RouteCraft 是面向 **Ikuuu 机场订阅**设计的非官方 [Clash Verge Rev](
 
 - 按节点名称整理香港、日本、新加坡、美国、台湾、欧洲及其他地区节点。
 - 提供 `🚀 Proxy`、`🤖 AI`、`📱 Telegram`、`🎬 Media`、`⬇️ Download` 等分层策略组，并保留专项业务分流。
+- 按「常用场景、地区与节点辅助」排列策略组，方便与 AcceleAI 对照使用。
 - 识别低倍率、下载专用和免费节点，方便将大流量任务与常规代理分开。
 - 通过 Mihomo `rule-providers` 引用 SukkaW 在线规则，无需将上千条规则硬编码进订阅。
+- 使用公共 DoH 解析公网域名，同时保留 XJTLU 与局域网域名的系统 DNS 解析。
+- 使用独立的 `🏫 XJTLU` 策略组处理 XJTLU 域名，并修复部分校园网络无法直连的腾讯云 CDN 主机。
 - 在原机场订阅的基础上加工配置；不在本脚本中写入机场订阅地址、密码或 UUID。
 
 ## 安装与使用
@@ -32,20 +35,38 @@ RouteCraft 是面向 **Ikuuu 机场订阅**设计的非官方 [Clash Verge Rev](
        │
        ▼
 routecraft.js（订阅扩展脚本）
-       ├─ 地区组：HK / JP / SG / US / TW / EU / Other
-       ├─ 业务组：AI / Telegram / Media / Apple / Microsoft / CDN / Download …
+       ├─ 常用场景组：Proxy / AI / Telegram / Media / Apple / Microsoft / CDN / Download …
+       ├─ 地区与节点辅助组：HK / JP / SG / US / TW / EU / Other / Manual Nodes
        └─ SukkaW 在线分流规则（rule-providers）
        │
        ▼
 Mihomo 最终配置 → Clash Verge Rev「代理」界面
 ```
 
+## 校园网络兼容
+
+RouteCraft 会在同一个扩展脚本中配置 DNS 与已确认的异常路由，不需要另外安装扩展覆写配置：
+
+- 普通公网域名使用腾讯和阿里的公共 DoH，避免当前网络的 DNS 影响公网解析。
+- `xjtlu.edu.cn` 与 SukkaW 局域网规则集仍使用系统 DNS，以保留校园内部服务的解析能力。
+- `captive.apple.com` 与 `netauth.xjtlu.edu.cn` 强制直连，确保 macOS 联网探测与校园认证不被代理绕过。
+- 所有 `xjtlu.edu.cn` 域名使用 `🏫 XJTLU` 策略组。该组默认选择 `🚀 Proxy`，绕过已确认存在连接超时的校园出口路径；访问只能从校园网进入的内部服务时，可以手动切换为 `DIRECT`。
+- 小红书图片主机 `sns-webpic-qc.xhscdn.com` 与腾讯云缓存主机 `cloudcache.tencent-cloud.com` 使用 `🚀 Proxy`。
+- `cdn-go.cn` 与 `main.qcloudimg.com` 使用香港策略组，绕过已确认存在连接超时的校园出口路径。
+- 微信资源主机 `mmbiz.qpic.cn`、`res.wx.qq.com`、`wximg.wxs.qq.com` 和 `mmbiz.qlogo.cn` 使用 `🚀 Proxy`，避免连接到校园网当前不可达的腾讯边缘节点。
+- 腾讯云相关规则只匹配上述故障主机，不会把整个腾讯云域名后缀改走代理。
+
+公共 DNS 服务能够看到它所处理的域名查询。如果所在网络有额外的内部域名，请先确认它们包含在 XJTLU 或局域网规则范围内，再启用本脚本。
+
+如果在其他校园、企业内网或需要额外 split-horizon DNS 的网络使用，请将 `routecraft.js` 顶部的 `CAMPUS_NETWORK_PROFILE_ENABLED` 改为 `false`。这会关闭本节的 DNS 和故障主机规则，保留订阅原有的 DNS 配置。
+
 ## 自动更新与注意事项
 
-- **机场节点更新**：仍由 Clash Verge Rev 原来的订阅更新功能负责。脚本在配置重新生成时，会使用更新后的节点重新构建策略组；**脚本本身不会替你定时拉取机场订阅**。
+- **机场节点更新**：仍由 Clash Verge Rev 原来的订阅更新功能负责。脚本在配置重新生成时，会使用更新后的节点重新构建策略组和 DNS；**脚本本身不会替你定时拉取机场订阅**。
+- **脚本版本更新**：机场订阅更新会重新执行已经安装的脚本，但不会自动下载 GitHub 上的新版本。RouteCraft 发布更新后，需要重新复制一次 `routecraft.js`。
 - **规则数据更新**：由脚本中定义的 SukkaW `rule-providers` 按设定间隔下载；首次使用需要能访问相应规则地址。
 - **兼容性**：主要针对 `proxies` 节点列表设计，同时包含 `proxy-providers` 的处理逻辑。节点命名不符合识别模式时，可能不会被分入预期国家；可从 `🧰 Manual Nodes` 或 `🚀 Proxy` 检查。
-- **现有配置**：脚本会重建 `proxy-groups`、`rules`、`rule-providers`，因此原机场自带的这些自定义项会被替换；其他字段尽量沿用原订阅。
+- **现有配置**：脚本会重建 `proxy-groups`、`rules` 与 `rule-providers`，机场原有策略组会被 RouteCraft 的场景组和地区组替换。其他字段尽量沿用原订阅。
 - **备份**：建议保留未应用脚本的原机场订阅或其他已知可用配置，出现问题时可先禁用扩展脚本并切回原配置。
 - **安全**：不要公开上传个人完整订阅 YAML、订阅链接、SS 密码、VMess UUID 或 Token。
 
