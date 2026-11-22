@@ -644,6 +644,32 @@ function main(config) {
   ];
   config['rule-providers'] = JSON.parse(JSON.stringify(PROVIDERS));
   config.rules = [...RULES];
+  const icons = {
+    Proxy: '🚀 Proxy',
+    CDN: '🚄 CDN',
+    Storage: '🗄️ Storage',
+    AI: '🤖 AI',
+    download: '⬇️ download',
+    domestic: '🇨🇳 domestic',
+    'social media': '📱 social media',
+    xjtlu: '🏫 xjtlu',
+    香港: '🇭🇰 香港',
+    新加坡: '🇸🇬 新加坡',
+    台湾: '🇹🇼 台湾',
+    日本: '🇯🇵 日本',
+    美国: '🇺🇸 美国',
+    其他地区: '🌍 其他地区',
+  };
+  for (const group of config['proxy-groups']) {
+    group.name = icons[group.name] || group.name;
+    group.proxies = group.proxies.map((name) => icons[name] || name);
+  }
+  config.rules = config.rules.map((rule) => {
+    const parts = rule.split(',');
+    const target = parts[0] === 'MATCH' ? 1 : 2;
+    parts[target] = icons[parts[target]] || parts[target];
+    return parts.join(',');
+  });
   config.mode = 'rule';
   return config;
 }

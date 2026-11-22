@@ -23,26 +23,26 @@ test('Sakura groups, AMP priority and preserved subscription settings', () => {
   assert.deepEqual(
     result['proxy-groups'].map((g) => g.name),
     [
-      'Proxy',
-      'CDN',
-      'Storage',
-      'AI',
-      'download',
-      'domestic',
-      'social media',
-      'xjtlu',
-      '日本',
-      '美国',
+      '🚀 Proxy',
+      '🚄 CDN',
+      '🗄️ Storage',
+      '🤖 AI',
+      '⬇️ download',
+      '🇨🇳 domestic',
+      '📱 social media',
+      '🏫 xjtlu',
+      '🇯🇵 日本',
+      '🇺🇸 美国',
     ],
   );
   assert.deepEqual(result.dns, config.dns);
   assert.deepEqual(result.proxies, config.proxies);
-  assert.equal(result['proxy-groups'].find((g) => g.name === 'AI').proxies[0], '美国');
+  assert.equal(result['proxy-groups'].find((g) => g.name === '🤖 AI').proxies[0], '🇺🇸 美国');
   assert.ok(
-    result.rules.indexOf('DOMAIN-SUFFIX,ampcode.com,AI') <
-      result.rules.indexOf('RULE-SET,cdn_domainset,CDN'),
+    result.rules.indexOf('DOMAIN-SUFFIX,ampcode.com,🤖 AI') <
+      result.rules.indexOf('RULE-SET,cdn_domainset,🚄 CDN'),
   );
-  assert.equal(result.rules.at(-1), 'MATCH,Proxy');
+  assert.equal(result.rules.at(-1), 'MATCH,🚀 Proxy');
   assert.ok(result['proxy-groups'].every((g) => !g.proxies.some((p) => p.includes('剩余流量'))));
 });
 test('Sakura leaves an empty subscription unchanged', () => {
