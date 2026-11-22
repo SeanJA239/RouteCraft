@@ -4,7 +4,17 @@ const path = require('node:path');
 const test = require('node:test');
 const vm = require('node:vm');
 
-const source = readFileSync(path.join(__dirname, '..', 'routecraft.js'), 'utf8');
+const source = readFileSync(
+  path.join(__dirname, '..', 'profiles', 'ikuuu', 'routecraft.js'),
+  'utf8',
+);
+
+test('keeps the legacy entrypoint identical to the Ikuuu profile', () => {
+  assert.equal(
+    readFileSync(path.join(__dirname, '..', 'profiles', 'ikuuu', 'routecraft.js'), 'utf8'),
+    source,
+  );
+});
 
 function runRouteCraft(config, { campusNetworkProfile = true } = {}) {
   const context = {};

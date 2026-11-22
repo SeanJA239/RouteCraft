@@ -4,11 +4,12 @@
   "private": true,
   "description": "Mihomo routing policy extension for Clash Verge Rev",
   "scripts": {
+    "sync:legacy": "node scripts/sync-legacy.js",
     "format": "biome format --write .",
     "format:check": "biome format .",
     "lint": "biome lint .",
     "test": "node --test",
-    "check": "npm run format:check && npm run lint && npm test && node --check routecraft.js"
+    "check": "npm run format:check && npm run lint && npm test && node --check routecraft.js && node --check profiles/ikuuu/routecraft.js && node --check profiles/sakura/routecraft.js"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.3"
