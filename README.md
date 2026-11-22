@@ -1,82 +1,58 @@
 # RouteCraft
 
-**Smarter routing for Ikuuu on Mihomo, powered by [SukkaW rulesets](https://github.com/SukkaW/Surge).**
+面向 **Clash Verge Rev / Mihomo** 的订阅扩展脚本，使用 [SukkaW 规则集](https://github.com/SukkaW/Surge)分流。每个版本均可独立粘贴使用。
 
-RouteCraft 是面向 **XJTLU 校园网上的 Ikuuu 机场订阅**设计的非官方 [Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev) 扩展脚本。它会基于机场订阅中的节点，动态构建地区和业务策略组，并使用 SukkaW 维护的在线规则进行分流。
+| 版本       | 脚本                                                           | 使用说明                                 | 策略与 DNS                                                       |
+| ---------- | -------------------------------------------------------------- | ---------------------------------------- | ---------------------------------------------------------------- |
+| **Ikuuu**  | [profiles/ikuuu/routecraft.js](profiles/ikuuu/routecraft.js)   | [Ikuuu 指南](profiles/ikuuu/README.md)   | 原有完整业务分组、低倍率/免费节点识别、XJTLU 校园 DNS 与路由适配 |
+| **Sakura** | [profiles/sakura/routecraft.js](profiles/sakura/routecraft.js) | [Sakura 指南](profiles/sakura/README.md) | 地区组 + 8 个业务组，保留原订阅 DNS                              |
 
-> 本项目与 Ikuuu、SukkaW 无官方关联。节点名称匹配针对当前 Ikuuu 风格设计，其他机场不保证兼容。
+两套版本分别维护，不能互相替代。根目录的 [routecraft.js](routecraft.js) 继续提供 **Ikuuu 版本**，与 profiles/ikuuu/routecraft.js 内容一致，以兼容已有链接。
 
-## 功能
+## 安装
 
-- 按节点名称整理香港、日本、新加坡、美国、台湾、欧洲及其他地区节点。
-- 提供 `🚀 Proxy`、`🤖 AI`、`📱 Telegram`、`🎬 Media`、`⬇️ Download` 等分层策略组，并保留专项业务分流。
-- 按「常用场景、地区与节点辅助」排列策略组，方便与 AcceleAI 对照使用。
-- 识别低倍率、下载专用和免费节点，方便将大流量任务与常规代理分开。
-- 通过 Mihomo `rule-providers` 引用 SukkaW 在线规则，无需将上千条规则硬编码进订阅。
-- 使用公共 DoH 解析公网域名，同时保留 XJTLU 与局域网域名的系统 DNS 解析。
-- 使用独立的 `🏫 XJTLU` 策略组处理 XJTLU 域名，并修复部分校园网络无法直连的腾讯云 CDN 主机。
-- 在原机场订阅的基础上加工配置；不在本脚本中写入机场订阅地址、密码或 UUID。
+1. 在 Clash Verge Rev 添加自己的机场订阅，确认原始订阅可以连接。
+2. 根据上表打开对应脚本，复制全部 JavaScript 内容。
+3. 在该订阅的 **编辑扩展/脚本** 中粘贴并保存，然后重新应用该订阅。不要粘贴到 YAML/Merge 覆写，也不要把 JS 当成完整 Mihomo 配置导入。
+4. 使用 **Rule / 规则** 模式，在代理页选择业务组与地区；通过连接日志检查规则命中。
 
-## 安装与使用
+[Clash Verge Rev 扩展配置文档](https://www.clashverge.dev/guide/extend.html)
 
-1. 安装 **Clash Verge Rev**，添加并更新自己的 **Ikuuu 机场订阅**，先确认原始订阅能够正常连接。
-2. 下载或打开本仓库的 [`routecraft.js`](./routecraft.js)，复制**全部内容**。
-3. 在 Clash Verge Rev 的 **订阅**页面，找到这份机场订阅卡片，右键选择 **编辑扩展/脚本**（不同版本界面文字可能略有不同）。
-4. 选择该订阅专属的 **扩展脚本（JavaScript / Script）**，粘贴内容并保存。**不要贴到扩展覆写配置（YAML / Merge）中，也不要直接把 JS 作为 Mihomo 配置导入。**
-5. 选中/应用原机场订阅，并根据需要手动更新订阅。进入 **代理（Proxies）** 页面，查看新增的地区组、业务组和 `🚀 Proxy` 主选择组。
-6. 将代理模式设为 **规则（Rule）**，为 `🚀 Proxy`、`🤖 AI` 等策略选择合适的地区或节点；在 **连接 / 日志** 页面检查实际命中规则。
+订阅更新会重新执行已安装的脚本，但不会自动从本仓库更新脚本。在线规则由 rule-providers 更新。两套脚本都会替换订阅的策略组、规则与规则提供者；迁移前保留原配置。
 
-[Clash Verge Rev 官方扩展配置与脚本文档](https://www.clashverge.dev/guide/extend.html)
-
-## 使用后的效果
+## 仓库结构
 
 ```text
-机场原始订阅（每个人自己的账号与节点）
-       │
-       ▼
-routecraft.js（订阅扩展脚本）
-       ├─ 常用场景组：Proxy / AI / Telegram / Media / Apple / Microsoft / CDN / Download …
-       ├─ 地区与节点辅助组：HK / JP / SG / US / TW / EU / Other / Manual Nodes
-       └─ SukkaW 在线分流规则（rule-providers）
-       │
-       ▼
-Mihomo 最终配置 → Clash Verge Rev「代理」界面
+profiles/
+  ikuuu/
+    routecraft.js       # Ikuuu 主维护入口
+    README.md           # Ikuuu / 校园网络说明
+  sakura/
+    routecraft.js       # Sakura 精简版，独立可用
+    README.md           # 分组、默认路由与测试边界
+routecraft.js           # Ikuuu 兼容副本
+scripts/
+  sync-legacy.js        # 同步 Ikuuu 兼容副本
+test/
+  routecraft.test.js    # Ikuuu 行为与兼容副本检查
+  sakura.test.js        # Sakura 分组、规则优先级及配置保持检查
 ```
 
-## 校园网络兼容
+## 开发与验证
 
-RouteCraft 会在同一个扩展脚本中配置 DNS 与已确认的异常路由，不需要另外安装扩展覆写配置：
+```sh
+npm ci
+npm run check
+```
 
-- 普通公网域名使用腾讯和阿里的公共 DoH，避免当前网络的 DNS 影响公网解析。
-- `xjtlu.edu.cn` 与 SukkaW 局域网规则集仍使用系统 DNS，以保留校园内部服务的解析能力。
-- `captive.apple.com` 与 `netauth.xjtlu.edu.cn` 强制直连，确保 macOS 联网探测与校园认证不被代理绕过。
-- 所有 `xjtlu.edu.cn` 域名使用 `🏫 XJTLU` 策略组。该组默认选择 `🚀 Proxy`，绕过已确认存在连接超时的校园出口路径；访问只能从校园网进入的内部服务时，可以手动切换为 `DIRECT`。
-- 小红书图片主机 `sns-webpic-qc.xhscdn.com` 与腾讯云缓存主机 `cloudcache.tencent-cloud.com` 使用 `🚀 Proxy`。
-- `cdn-go.cn` 与 `main.qcloudimg.com` 使用香港策略组，绕过已确认存在连接超时的校园出口路径。
-- 微信资源主机 `mmbiz.qpic.cn`、`res.wx.qq.com`、`wximg.wxs.qq.com` 和 `mmbiz.qlogo.cn` 使用 `🚀 Proxy`，避免连接到校园网当前不可达的腾讯边缘节点。
-- 腾讯云相关规则只匹配上述故障主机，不会把整个腾讯云域名后缀改走代理。
+修改 Ikuuu 时编辑 profiles/ikuuu/routecraft.js，再执行 `npm run sync:legacy` 更新根目录兼容副本。修改 Sakura 时只编辑 profiles/sakura/routecraft.js。提交前可运行 `npm run format`，然后运行 `npm run check`；CI 对两套脚本执行格式、lint、测试和语法检查。
 
-公共 DNS 服务能够看到它所处理的域名查询。如果所在网络有额外的内部域名，请先确认它们包含在 XJTLU 或局域网规则范围内，再启用本脚本。
+测试使用虚构节点，不包含订阅地址、密码、UUID 或真实出口 IP。自动测试验证配置生成行为，不能替代当前网络上的节点连通性、服务可用性或 IP 信誉检查。
 
-如果在其他校园、企业内网或需要额外 split-horizon DNS 的网络使用，请将 `routecraft.js` 顶部的 `CAMPUS_NETWORK_PROFILE_ENABLED` 改为 `false`。这会关闭本节的 DNS 和故障主机规则，保留订阅原有的 DNS 配置。
+## 来源与许可
 
-## 自动更新与注意事项
+- RouteCraft：节点分组与策略生成，使用 [MIT 许可证](LICENSE)。
+- [SukkaW/Surge](https://github.com/SukkaW/Surge)：在线规则数据，遵循上游许可。
+- [Mihomo](https://github.com/MetaCubeX/mihomo)、[Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev)：代理内核与客户端。
 
-- **机场节点更新**：仍由 Clash Verge Rev 原来的订阅更新功能负责。脚本在配置重新生成时，会使用更新后的节点重新构建策略组和 DNS；**脚本本身不会替你定时拉取机场订阅**。
-- **脚本版本更新**：机场订阅更新会重新执行已经安装的脚本，但不会自动下载 GitHub 上的新版本。RouteCraft 发布更新后，需要重新复制一次 `routecraft.js`。
-- **规则数据更新**：由脚本中定义的 SukkaW `rule-providers` 按设定间隔下载；首次使用需要能访问相应规则地址。
-- **兼容性**：主要针对 `proxies` 节点列表设计，同时包含 `proxy-providers` 的处理逻辑。节点命名不符合识别模式时，可能不会被分入预期国家；可从 `🧰 Manual Nodes` 或 `🚀 Proxy` 检查。
-- **现有配置**：脚本会重建 `proxy-groups`、`rules` 与 `rule-providers`，机场原有策略组会被 RouteCraft 的场景组和地区组替换。其他字段尽量沿用原订阅。
-- **备份**：建议保留未应用脚本的原机场订阅或其他已知可用配置，出现问题时可先禁用扩展脚本并切回原配置。
-- **安全**：不要公开上传个人完整订阅 YAML、订阅链接、SS 密码、VMess UUID 或 Token。
-
-## 技术来源与版权
-
-- **RouteCraft**：负责将节点按地区归类、生成策略组、映射业务规则及适配 Clash Verge Rev 脚本接口。
-- **[SukkaW/Surge](https://github.com/SukkaW/Surge)**：提供本项目引用的规则数据。其规则、代码和相关文件仍受 SukkaW 项目各自的许可约束；本仓库的许可不改变第三方文件许可。
-- **[Mihomo](https://github.com/MetaCubeX/mihomo)**、**[Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev)**：运行内核与客户端。
-
-
-## 状态
-
-当前为 **V3 试用版**。已做基础 JavaScript 语法与配置结构检查，但不能替代所有 Clash Verge Rev / Mihomo 版本及真实机场环境的功能测试。欢迎通过 Issues 反馈节点识别、规则命中和兼容性问题。
+本项目与 Ikuuu、Sakura、SukkaW 无官方关联。不要向仓库提交个人订阅、完整节点配置或含凭据的测试文件。
